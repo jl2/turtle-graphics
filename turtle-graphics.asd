@@ -9,6 +9,6 @@
   :license  "ISC"
   :version "0.0.1"
   :serial t
-  :depends-on (#:clgl)
+  :depends-on (#:clgl #:alexandria  #:3d-vectors  #:3d-matrices)
   :components ((:file "package")
                (:file "turtle-graphics")))

@@ -75,7 +75,8 @@
     (setf pen-down t)))
 
 (defun pen-color (tc)
-  (slot-value 'current-color tc))
+  (with-slots (current-color) tc
+    current-color))
 
 (defun set-pen-color (tc color)
   (with-slots (current-color) tc
@@ -87,3 +88,46 @@
     (setf current-angle 0)
     (setf pen-down t)
     (setf current-color (vec4 0 0 1 1))))
+
+(defclass L-system ()
+  ((rules :initarg :rules
+          :initform '( (:f :f :+ :f)))
+   (base :initarg :base
+         :initform '(:f))
+   (mapping :initarg :mapping
+            :initform (list (cons :+ (rcurry #'tg:right (/ pi 8)))
+                            (cons :- (rcurry #'tg:left (/ pi 8)))
+                            (cons :f (rcurry #'tg:forward 0.25)))
+            ))
+  (:documentation "An L-System generator."))
+
+(defun generate (system rules)
+  (apply #'concatenate 'list 
+         (mapcar (lambda (sym) (if (assoc sym rules)
+                                   (cdr (assoc sym rules))
+                                   (list sym)))
+                 system)))
+
+(defun generate-l-system (lsys iterations &key (color (vec4 0 1 0 1)))
+  (with-slots (rules base mapping) lsys
+    (let* ((tg (make-instance 'turtle))
+           (current-system base))
+      (set-pen-color tg color)
+      (dotimes (i iterations)
+        (setf current-system (generate current-system rules)))
+      (dolist (rule current-system)
+        (funcall (cdr (assoc rule mapping)) tg))
+      (values tg current-system))))
+
+
+(defun l-system-viewer (&key 
+                          (iterations 4)
+                          (name :lsys)
+                          (sys (make-instance 'tg:l-system :rules '((:f :f :f :+ :f :f :- :f :+)
+                                                                    ))))
+  (let ((viewer (make-instance 'clgl:viewer
+                               :viewport (make-instance 'clgl:2d-viewport
+                                                        :radius 2))))
+    (clgl:show-viewer viewer)
+    (clgl:add-object viewer name (tg:generate-l-system sys iterations))
+    (values viewer sys)))

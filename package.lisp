@@ -4,7 +4,7 @@
 
 
 (defpackage #:turtle-graphics
-  (:use #:cl #:clgl #:3d-vectors)
+  (:use #:cl #:clgl #:3d-vectors #:3d-matrices #:alexandria)
   (:nicknames :tg)
   (:export #:turtle
            #:forward
@@ -20,7 +20,11 @@
            #:towards
            #:pen-up
            #:pen-down
-           #:pen-size
            #:pen-color
+           #:set-pen-color
            #:reset
-           #:clear))
+           #:l-system
+           #:generate
+           #:generate-l-system
+           #:l-system-viewer
+           ))
